@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>SGPA Calculator</title>
+  <title>Student Result Calculator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -44,7 +44,7 @@
   </style>
 </head>
 <body>
-  <h2>Student SGPA Calculator (6 Subjects)</h2>
+  <h2>Student Result Calculator (6 Subjects)</h2>
 
   <div class="row">
     <label>Application No:</label>
@@ -63,12 +63,12 @@
 
   <h3>Enter Marks</h3>
 
-  <div class="row"><label>MATHS:</label><input type="number" id="sub1" min="0" step="0.01"></div>
-  <div class="row"><label>DSA:</label><input type="number" id="sub2" min="0" step="0.01"></div>
-  <div class="row"><label>FSD:</label><input type="number" id="sub3" min="0" step="0.01"></div>
-  <div class="row"><label>ML:</label><input type="number" id="sub4" min="0" step="0.01"></div>
-  <div class="row"><label>RM:</label><input type="number" id="sub5" min="0" step="0.01"></div>
-  <div class="row"><label>MAOM:</label><input type="number" id="sub6" min="0" step="0.01"></div>
+  <div class="row"><label>MATHS:</label><input type="number" id="sub1" min="0"></div>
+  <div class="row"><label>DSA:</label><input type="number" id="sub2" min="0"></div>
+  <div class="row"><label>FSD:</label><input type="number" id="sub3" min="0"></div>
+  <div class="row"><label>ML:</label><input type="number" id="sub4" min="0"></div>
+  <div class="row"><label>RM:</label><input type="number" id="sub5" min="0"></div>
+  <div class="row"><label>MAOM:</label><input type="number" id="sub6" min="0"></div>
 
   <div class="row">
     <label>Total Marks for each subject:</label>
@@ -76,7 +76,7 @@
   </div>
 
   <div id="controls">
-    <button type="button" id="calcBtn">Calculate SGPA</button>
+    <button type="button" id="calcBtn">Calculate Result</button>
     <button type="button" id="resetBtn" style="margin-left:8px; background:#e2e8f0; color:#0f172a;">Reset</button>
   </div>
 
@@ -87,10 +87,10 @@
     const resetBtn = document.getElementById('resetBtn');
     const resultEl = document.getElementById('result');
 
-    calcBtn.addEventListener('click', calculateSGPA);
+    calcBtn.addEventListener('click', calculateResult);
     resetBtn.addEventListener('click', resetForm);
 
-    function calculateSGPA() {
+    function calculateResult() {
       resultEl.innerHTML = ''; // clear previous
 
       const total = parseFloat(document.getElementById("total").value);
@@ -114,21 +114,24 @@
         marks.push(val);
       }
 
-      // GPA per subject = (marks / total) * 10
-      const gpas = marks.map(m => (m / total) * 10);
-      const cgpa = gpas.reduce((a, b) => a + b, 0) / gpas.length;
-      const cgpaFixed = cgpa.toFixed(2);
-
-      const name = document.getElementById("name").value.trim() || "Student";
-      const appNo = document.getElementById("appNo").value.trim() || "-";
-      const rollNo = document.getElementById("rollNo").value.trim() || "-";
+      // Total and Percentage
       const totalMarksObtained = marks.reduce((a, b) => a + b, 0);
       const percentage = ((totalMarksObtained / (total * marks.length)) * 100).toFixed(2);
 
+      // SGPA Calculation (each subject GPA out of 10, average them)
+      const gpas = marks.map(m => (m / total) * 10);
+      const sgpa = (gpas.reduce((a, b) => a + b, 0) / gpas.length).toFixed(2);
+
+      // Student Info
+      const name = document.getElementById("name").value.trim() || "Student";
+      const appNo = document.getElementById("appNo").value.trim() || "-";
+      const rollNo = document.getElementById("rollNo").value.trim() || "-";
+
       resultEl.innerHTML = `
         <div><strong>${name}</strong> (App No: ${appNo}, Roll No: ${rollNo})</div>
-        <div style="margin-top:8px">SGPA: <strong>${cgpaFixed}</strong></div>
+        <div style="margin-top:8px">Total Marks: <strong>${totalMarksObtained} / ${total * marks.length}</strong></div>
         <div>Percentage: <strong>${percentage}%</strong></div>
+        <div>SGPA: <strong>${sgpa}</strong></div>
       `;
     }
 
