@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SGPA Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 720px;
+      margin: 32px auto;
+      padding: 16px;
+      background: #f7fafc;
+      color: #0f172a;
+    }
+    h2 { margin-bottom: 8px; }
+    label { display:inline-block; width:160px; font-weight:600; }
+    input[type="text"], input[type="number"] {
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      width: 200px;
+    }
+    .row { margin-bottom: 10px; }
+    #controls { margin-top: 12px; }
+    button {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 8px;
+      background: #2563eb;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover { background: #1e40af; }
+    #result {
+      margin-top: 18px;
+      padding: 12px;
+      border-radius: 8px;
+      background: white;
+      box-shadow: 0 1px 6px rgba(2,6,23,0.08);
+    }
+    .error { color: #b91c1c; font-weight:600; }
+  </style>
+</head>
+<body>
+  <h2>Student SGPA Calculator (6 Subjects)</h2>
+
+  <div class="row">
+    <label>Application No:</label>
+    <input type="text" id="appNo" placeholder="e.g., APP123"><br>
+  </div>
+
+  <div class="row">
+    <label>Roll No:</label>
+    <input type="text" id="rollNo" placeholder="e.g., 18CS001"><br>
+  </div>
+
+  <div class="row">
+    <label>Name:</label>
+    <input type="text" id="name" placeholder="Student name"><br>
+  </div>
+
+  <h3>Enter Marks</h3>
+
+  <div class="row"><label>MATHS:</label><input type="number" id="sub1" min="0" step="0.01"></div>
+  <div class="row"><label>DSA:</label><input type="number" id="sub2" min="0" step="0.01"></div>
+  <div class="row"><label>FSD:</label><input type="number" id="sub3" min="0" step="0.01"></div>
+  <div class="row"><label>ML:</label><input type="number" id="sub4" min="0" step="0.01"></div>
+  <div class="row"><label>RM:</label><input type="number" id="sub5" min="0" step="0.01"></div>
+  <div class="row"><label>MAOM:</label><input type="number" id="sub6" min="0" step="0.01"></div>
+
+  <div class="row">
+    <label>Total Marks for each subject:</label>
+    <input type="number" id="total" value="100" min="1"><br>
+  </div>
+
+  <div id="controls">
+    <button type="button" id="calcBtn">Calculate SGPA</button>
+    <button type="button" id="resetBtn" style="margin-left:8px; background:#e2e8f0; color:#0f172a;">Reset</button>
+  </div>
+
+  <div id="result" aria-live="polite"></div>
+
+  <script>
+    const calcBtn = document.getElementById('calcBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const resultEl = document.getElementById('result');
+
+    calcBtn.addEventListener('click', calculateSGPA);
+    resetBtn.addEventListener('click', resetForm);
+
+    function calculateSGPA() {
+      resultEl.innerHTML = ''; // clear previous
+
+      const total = parseFloat(document.getElementById("total").value);
+      if (isNaN(total) || total <= 0) {
+        resultEl.innerHTML = '<div class="error">Please enter a valid Total Marks value (> 0).</div>';
+        return;
+      }
+
+      const marks = [];
+      for (let i = 1; i <= 6; i++) {
+        const raw = document.getElementById("sub" + i).value;
+        const val = parseFloat(raw);
+        if (raw === "" || isNaN(val)) {
+          resultEl.innerHTML = '<div class="error">Please enter marks for Subject ' + i + '.</div>';
+          return;
+        }
+        if (val < 0 || val > total) {
+          resultEl.innerHTML = '<div class="error">Marks for Subject ' + i + ' must be between 0 and ' + total + '.</div>';
+          return;
+        }
+        marks.push(val);
+      }
+
+      // GPA per subject = (marks / total) * 10
+      const gpas = marks.map(m => (m / total) * 10);
+      const cgpa = gpas.reduce((a, b) => a + b, 0) / gpas.length;
+      const cgpaFixed = cgpa.toFixed(2);
+
+      const name = document.getElementById("name").value.trim() || "Student";
+      const appNo = document.getElementById("appNo").value.trim() || "-";
+      const rollNo = document.getElementById("rollNo").value.trim() || "-";
+      const totalMarksObtained = marks.reduce((a, b) => a + b, 0);
+      const percentage = ((totalMarksObtained / (total * marks.length)) * 100).toFixed(2);
+
+      resultEl.innerHTML = `
+        <div><strong>${name}</strong> (App No: ${appNo}, Roll No: ${rollNo})</div>
+        <div style="margin-top:8px">SGPA: <strong>${cgpaFixed}</strong></div>
+        <div>Percentage: <strong>${percentage}%</strong></div>
+      `;
+    }
+
+    function resetForm() {
+      document.getElementById("appNo").value = '';
+      document.getElementById("rollNo").value = '';
+      document.getElementById("name").value = '';
+      for (let i = 1; i <= 6; i++) document.getElementById("sub" + i).value = '';
+      document.getElementById("total").value = '100';
+      resultEl.innerHTML = '';
+    }
+  </script>
+</body>
+</html>
